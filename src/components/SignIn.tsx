@@ -44,7 +44,7 @@ function SignIn() {
     const user = users.find((u) => u.id === email && u.password === password);
 
     if (user) {
-      localStorage.setItem("TMDb-Key", user.password);
+      localStorage.setItem("TMDB-Key", user.password);
 
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", email);
