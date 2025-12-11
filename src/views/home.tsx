@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 
 const home = () => {
   return <div>홈페이지</div>;
