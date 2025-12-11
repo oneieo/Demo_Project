@@ -2,6 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 
+// Axios 인스턴스 생성
 const tmdbApi = axios.create({
   baseURL: BASE_URL,
   params: {
@@ -9,8 +10,9 @@ const tmdbApi = axios.create({
   },
 });
 
+// 요청 인터셉터: API 키 자동 추가
 tmdbApi.interceptors.request.use(
-  (config) => {
+  (config: any) => {
     const apiKey = localStorage.getItem("TMDB-Key");
     if (apiKey) {
       config.params = {
@@ -25,10 +27,12 @@ tmdbApi.interceptors.request.use(
   }
 );
 
+// 응답 인터셉터: 에러 처리
 tmdbApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // API 키가 유효하지 않은 경우
       localStorage.removeItem("TMDB-Key");
       window.location.href = "/#/signin";
     }
@@ -36,6 +40,7 @@ tmdbApi.interceptors.response.use(
   }
 );
 
+// 영화 타입 정의
 export interface Movie {
   id: number;
   title: string;
@@ -54,6 +59,7 @@ export interface MoviesResponse {
   total_results: number;
 }
 
+// API 함수들
 export const movieApi = {
   // 인기 영화
   getPopular: (page: number = 1) =>
