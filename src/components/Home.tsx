@@ -24,7 +24,7 @@ const Home = () => {
         const response = await movieApi.getPopular(1);
         setMovies(response.data.results);
         setError("");
-      } catch (err) {
+      } catch (err: any) {
         const errorMsg =
           err.response?.data?.status_message ||
           "영화 데이터를 불러오는데 실패했습니다.";
