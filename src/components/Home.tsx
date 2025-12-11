@@ -19,14 +19,15 @@ const Home = () => {
 
       try {
         setLoading(true);
-        
+
         // Axios로 인기 영화 가져오기
         const response = await movieApi.getPopular(1);
         setMovies(response.data.results);
         setError("");
-      } catch (err: any) {
-        const errorMsg = err.response?.data?.status_message || 
-                        "영화 데이터를 불러오는데 실패했습니다.";
+      } catch (err) {
+        const errorMsg =
+          err.response?.data?.status_message ||
+          "영화 데이터를 불러오는데 실패했습니다.";
         setError(errorMsg);
         console.error("Error fetching movies:", err);
       } finally {
@@ -50,15 +51,23 @@ const Home = () => {
       <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
         <h2>오류 발생</h2>
         <p>{error}</p>
-        <button onClick={() => navigate("/signin")}>로그인 페이지로 이동</button>
+        <button onClick={() => navigate("/signin")}>
+          로그인 페이지로 이동
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "20px", backgroundColor: "#141414", minHeight: "100vh" }}>
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#141414",
+        minHeight: "100vh",
+      }}
+    >
       <h1 style={{ color: "white", marginBottom: "30px" }}>인기 영화</h1>
-      
+
       <div
         style={{
           display: "grid",
@@ -76,7 +85,9 @@ const Home = () => {
               cursor: "pointer",
               transition: "transform 0.3s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.05)")
+            }
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             {movie.poster_path ? (
@@ -100,14 +111,30 @@ const Home = () => {
                 No Image
               </div>
             )}
-            
+
             <div style={{ padding: "15px" }}>
-              <h3 style={{ color: "white", fontSize: "16px", marginBottom: "10px" }}>
+              <h3
+                style={{
+                  color: "white",
+                  fontSize: "16px",
+                  marginBottom: "10px",
+                }}
+              >
                 {movie.title}
               </h3>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px" }}>
-                <span style={{ color: "#46d369" }}>⭐ {movie.vote_average.toFixed(1)}</span>
-                <span style={{ color: "#999" }}>{movie.release_date?.slice(0, 4)}</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "14px",
+                }}
+              >
+                <span style={{ color: "#46d369" }}>
+                  ⭐ {movie.vote_average.toFixed(1)}
+                </span>
+                <span style={{ color: "#999" }}>
+                  {movie.release_date?.slice(0, 4)}
+                </span>
               </div>
             </div>
           </div>
