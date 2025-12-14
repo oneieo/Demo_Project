@@ -179,7 +179,7 @@ const Home = () => {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <h2>영화 로딩 중...</h2>
+        <h3>영화 불러오는 중...</h3>
       </div>
     );
   }
