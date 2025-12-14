@@ -1,8 +1,14 @@
 #root {
-  max-width: 1280px;
+  width: 100%;
+  max-width: 1920px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: #141414;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
 
 .logo {
