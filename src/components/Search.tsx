@@ -18,7 +18,7 @@ const Search: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("popularity.desc");
   const [searchKeyword, setSearchKeyword] = useState<string>("");
 
-  // 위시리스트 상태
+  // 위시리스트 상태 (id 배열)
   const [wishlist, setWishlist] = useState<number[]>([]);
 
   // 페이지네이션
@@ -37,11 +37,16 @@ const Search: React.FC = () => {
     }
   }, []);
 
-  // 위시리스트 불러오기
+  // 위시리스트 불러오기 (movieWishlist에서 id만 추출)
   useEffect(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
-    if (savedWishlist) {
-      setWishlist(JSON.parse(savedWishlist));
+    const savedMovieWishlist = localStorage.getItem("movieWishlist");
+    if (savedMovieWishlist) {
+      try {
+        const parsed = JSON.parse(savedMovieWishlist);
+        setWishlist(parsed.map((movie: Movie) => movie.id));
+      } catch (err) {
+        console.error("위시리스트 로드 실패:", err);
+      }
     }
   }, []);
 
@@ -122,12 +127,34 @@ const Search: React.FC = () => {
   ]);
 
   const handleToggleWishlist = (movie: Movie) => {
-    const newWishlist = wishlist.includes(movie.id)
-      ? wishlist.filter((id) => id !== movie.id)
-      : [...wishlist, movie.id];
+    // movieWishlist (전체 Movie 객체 배열) 로드
+    const savedMovieWishlist = localStorage.getItem("movieWishlist");
+    let currentMovieWishlist: Movie[] = [];
 
-    setWishlist(newWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(newWishlist));
+    if (savedMovieWishlist) {
+      try {
+        currentMovieWishlist = JSON.parse(savedMovieWishlist);
+      } catch (err) {
+        console.error("위시리스트 파싱 실패:", err);
+      }
+    }
+
+    const existingIndex = currentMovieWishlist.findIndex(
+      (m) => m.id === movie.id
+    );
+
+    if (existingIndex === -1) {
+      // 추가
+      currentMovieWishlist.push(movie);
+      setWishlist([...wishlist, movie.id]);
+    } else {
+      // 제거
+      currentMovieWishlist.splice(existingIndex, 1);
+      setWishlist(wishlist.filter((id) => id !== movie.id));
+    }
+
+    // movieWishlist만 저장
+    localStorage.setItem("movieWishlist", JSON.stringify(currentMovieWishlist));
   };
 
   const handleResetFilters = () => {
