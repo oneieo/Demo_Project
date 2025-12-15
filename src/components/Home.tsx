@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { movieApi, Movie, getImageUrl } from "../utils/tmdbApi";
+import { movieApi, Movie } from "../utils/tmdbApi";
+import HeroBanner from "../components/HeroBanner";
+import MovieSection from "../components/MovieSection";
 import "../css/Home.css";
 
 const Home = () => {
@@ -49,7 +51,6 @@ const Home = () => {
         const popularResults = popular.data.results;
 
         setHeroMovie(popularResults[0]);
-
         setPopularMovies(popularResults.slice(1, 11));
         setNowPlayingMovies(nowPlaying.data.results.slice(0, 10));
         setTopRatedMovies(topRated.data.results.slice(0, 10));
@@ -95,86 +96,6 @@ const Home = () => {
     localStorage.setItem("movieWishlist", JSON.stringify(currentWishlist));
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const container = e.currentTarget;
-    const cardWidth = 200;
-    const gap = 10;
-    const cardsToScroll = 5;
-    const scrollDistance = (cardWidth + gap) * cardsToScroll;
-
-    if (e.deltaY > 0) {
-      container.scrollBy({ left: scrollDistance, behavior: "smooth" });
-    } else {
-      container.scrollBy({ left: -scrollDistance, behavior: "smooth" });
-    }
-  };
-
-  const renderMovieCard = (movie: Movie) => {
-    const isWishlisted = wishlist.includes(movie.id);
-
-    return (
-      <div
-        key={movie.id}
-        className={`movie-card ${isWishlisted ? "wishlisted" : ""}`}
-        onClick={() => toggleWishlist(movie)}
-      >
-        {movie.poster_path ? (
-          <img
-            src={getImageUrl(movie.poster_path, "w500")}
-            alt={movie.title}
-            className="movie-poster"
-          />
-        ) : (
-          <div className="no-image">No Image</div>
-        )}
-
-        {isWishlisted && (
-          <div className="wishlist-badge">
-            <i className="fas fa-heart"></i>
-          </div>
-        )}
-
-        <div className="movie-info">
-          <h3 className="movie-title">{movie.title}</h3>
-          <p className="movie-overview">
-            {movie.overview
-              ? movie.overview.slice(0, 100) + "..."
-              : "설명이 없습니다."}
-          </p>
-          <div className="movie-meta">
-            <span className="rating">⭐ {movie.vote_average.toFixed(1)}</span>
-            <span className="release-date">
-              {movie.release_date?.slice(0, 4)}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderMovieSection = (title: string, movies: Movie[]) => {
-    if (movies.length === 0) return null;
-
-    return (
-      <section className="movie-section">
-        <h2 className="section-title">{title}</h2>
-        <div
-          className="movie-grid"
-          onWheel={handleWheel}
-          style={{ cursor: "grab" }}
-          onMouseDown={(e) => (e.currentTarget.style.cursor = "grabbing")}
-          onMouseUp={(e) => (e.currentTarget.style.cursor = "grab")}
-          onMouseLeave={(e) => (e.currentTarget.style.cursor = "grab")}
-        >
-          {movies.map(renderMovieCard)}
-        </div>
-      </section>
-    );
-  };
-
   if (loading) {
     return (
       <div className="loading-container">
@@ -199,64 +120,38 @@ const Home = () => {
   return (
     <div className="home-container">
       {heroMovie && (
-        <div className="hero-banner">
-          <div
-            className="hero-backdrop"
-            style={{
-              backgroundImage: `url(${getImageUrl(
-                heroMovie.backdrop_path,
-                "original"
-              )})`,
-            }}
-          >
-            <div className="hero-overlay"></div>
-          </div>
-
-          <div className="hero-content">
-            <h1 className="hero-title">{heroMovie.title}</h1>
-            <p className="hero-overview">
-              {heroMovie.overview || "설명이 없습니다."}
-            </p>
-
-            <div className="hero-buttons">
-              <button
-                className="hero-btn play-btn"
-                onClick={() => toggleWishlist(heroMovie)}
-              >
-                <i className="fas fa-play"></i> 재생
-              </button>
-              <button
-                className="hero-btn info-btn"
-                onClick={() => toggleWishlist(heroMovie)}
-              >
-                <i
-                  className={`fas ${
-                    wishlist.includes(heroMovie.id) ? "fa-check" : "fa-plus"
-                  }`}
-                ></i>
-                {wishlist.includes(heroMovie.id)
-                  ? "내가 찜한 리스트"
-                  : "내가 찜한 리스트"}
-              </button>
-            </div>
-
-            <div className="hero-meta">
-              <span className="hero-rating">
-                ⭐ {heroMovie.vote_average.toFixed(1)}
-              </span>
-              <span className="hero-date">
-                {heroMovie.release_date?.slice(0, 4)}
-              </span>
-            </div>
-          </div>
-        </div>
+        <HeroBanner
+          movie={heroMovie}
+          isWishlisted={wishlist.includes(heroMovie.id)}
+          onToggleWishlist={toggleWishlist}
+        />
       )}
 
       <div className="movies-container">
-        {renderMovieSection("🔥 인기 영화", popularMovies)}
-        {renderMovieSection("🎬 현재 상영작", nowPlayingMovies)}
-        {renderMovieSection("⭐ 평점 높은 영화", topRatedMovies)}
-        {renderMovieSection("🎯 개봉 예정", upcomingMovies)}
+        <MovieSection
+          title="🔥 인기 영화"
+          movies={popularMovies}
+          wishlist={wishlist}
+          onToggleWishlist={toggleWishlist}
+        />
+        <MovieSection
+          title="🎬 현재 상영작"
+          movies={nowPlayingMovies}
+          wishlist={wishlist}
+          onToggleWishlist={toggleWishlist}
+        />
+        <MovieSection
+          title="⭐ 평점 높은 영화"
+          movies={topRatedMovies}
+          wishlist={wishlist}
+          onToggleWishlist={toggleWishlist}
+        />
+        <MovieSection
+          title="🎯 개봉 예정"
+          movies={upcomingMovies}
+          wishlist={wishlist}
+          onToggleWishlist={toggleWishlist}
+        />
       </div>
     </div>
   );
