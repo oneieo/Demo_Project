@@ -5,8 +5,17 @@ import "../css/Navbar.css";
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      window.location.reload();
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,13 +30,11 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location]);
 
-  const isActive = (path: string) => location.pathname === path;
-
   return (
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
         <div className="navbar-left">
-          <Link to="/" className="navbar-logo">
+          <Link to="/" className="navbar-logo" onClick={handleHomeClick}>
             POPFLIX
           </Link>
 
@@ -35,6 +42,7 @@ const Navbar = () => {
             <Link
               to="/"
               className={`navbar-link ${isActive("/") ? "active" : ""}`}
+              onClick={handleHomeClick}
             >
               홈
             </Link>
@@ -102,7 +110,11 @@ const Navbar = () => {
 
       {/* 모바일 메뉴 */}
       <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
-        <Link to="/" className={`navbar-link ${isActive("/") ? "active" : ""}`}>
+        <Link
+          to="/"
+          className={`navbar-link ${isActive("/") ? "active" : ""}`}
+          onClick={handleHomeClick}
+        >
           홈
         </Link>
         <Link
