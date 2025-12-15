@@ -292,7 +292,6 @@ const Search: React.FC = () => {
           <div className="results-info">
             <p>
               총 <strong>{movies.length}</strong>개의 영화를 찾았습니다
-              {searchKeyword && ` (검색어: "${searchKeyword}")`}
             </p>
           </div>
 
