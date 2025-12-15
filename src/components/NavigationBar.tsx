@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../css/Navbar.css";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -14,6 +16,32 @@ const Navbar = () => {
     if (location.pathname === "/") {
       e.preventDefault();
       window.location.reload();
+    }
+  };
+
+  // 검색 실행
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // localStorage에 검색어 저장
+      localStorage.setItem("searchKeyword", searchQuery.trim());
+      // 검색 페이지로 이동
+      navigate("/search");
+      // 검색창 닫기 및 초기화
+      setShowSearch(false);
+      setSearchQuery("");
+    }
+  };
+
+  // 검색 입력 처리
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Enter 키 처리
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch(e as any);
     }
   };
 
@@ -28,6 +56,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setMobileMenuOpen(false);
+    setShowSearch(false);
   }, [location]);
 
   return (
@@ -82,12 +111,22 @@ const Navbar = () => {
               <i className="fas fa-search"></i>
             </button>
             {showSearch && (
-              <input
-                type="text"
-                className="search-input"
-                placeholder="제목, 사람, 장르"
-                autoFocus
-              />
+              <form onSubmit={handleSearch} className="search-form">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="제목, 사람, 장르"
+                  value={searchQuery}
+                  onChange={handleSearchInput}
+                  onKeyPress={handleKeyPress}
+                  autoFocus
+                />
+                {searchQuery && (
+                  <button type="submit" className="search-submit-btn">
+                    <i className="fas fa-arrow-right"></i>
+                  </button>
+                )}
+              </form>
             )}
           </div>
           <div className="profile-menu">
@@ -110,6 +149,22 @@ const Navbar = () => {
 
       {/* 모바일 메뉴 */}
       <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
+        {/* 모바일 검색 */}
+        <div className="mobile-search">
+          <form onSubmit={handleSearch} className="mobile-search-form">
+            <input
+              type="text"
+              className="mobile-search-input"
+              placeholder="제목, 사람, 장르 검색"
+              value={searchQuery}
+              onChange={handleSearchInput}
+            />
+            <button type="submit" className="mobile-search-btn">
+              <i className="fas fa-search"></i>
+            </button>
+          </form>
+        </div>
+
         <Link
           to="/"
           className={`navbar-link ${isActive("/") ? "active" : ""}`}
