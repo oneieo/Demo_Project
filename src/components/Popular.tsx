@@ -2,15 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Movie, getImageUrl, movieApi } from "../utils/tmdbApi";
 import "../css/Popular.css";
 
-interface PopularProps {
-  wishlist: number[];
-  onToggleWishlist: (movie: Movie) => void;
-}
-
-const Popular: React.FC<PopularProps> = ({
-  wishlist = [],
-  onToggleWishlist,
-}) => {
+const Popular: React.FC = () => {
+  const [wishlist, setWishlist] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<"table" | "infinite">("table");
   const [movies, setMovies] = useState<Movie[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,8 +31,45 @@ const Popular: React.FC<PopularProps> = ({
     }
   };
 
+  const toggleWishlist = (movie: Movie) => {
+    const savedWishlist = localStorage.getItem("movieWishlist");
+    let currentWishlist: Movie[] = [];
+
+    if (savedWishlist) {
+      try {
+        currentWishlist = JSON.parse(savedWishlist);
+      } catch (err) {
+        console.error("Failed to parse wishlist:", err);
+      }
+    }
+
+    const existingIndex = currentWishlist.findIndex((m) => m.id === movie.id);
+
+    if (existingIndex === -1) {
+      currentWishlist.push(movie);
+      setWishlist([...wishlist, movie.id]);
+    } else {
+      currentWishlist.splice(existingIndex, 1);
+      setWishlist(wishlist.filter((id) => id !== movie.id));
+    }
+
+    localStorage.setItem("movieWishlist", JSON.stringify(currentWishlist));
+  };
+
   useEffect(() => {
     fetchMovies(1);
+  }, []);
+
+  useEffect(() => {
+    const savedWishlist = localStorage.getItem("movieWishlist");
+    if (savedWishlist) {
+      try {
+        const parsed = JSON.parse(savedWishlist);
+        setWishlist(parsed.map((movie: Movie) => movie.id));
+      } catch (err) {
+        console.error("Failed to parse wishlist:", err);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -203,7 +233,7 @@ const Popular: React.FC<PopularProps> = ({
               className={`popular-movie-card ${
                 wishlist.includes(movie.id) ? "wishlisted" : ""
               }`}
-              onClick={() => onToggleWishlist(movie)}
+              onClick={() => setWishlist(movie)}
             >
               {movie.poster_path ? (
                 <img
