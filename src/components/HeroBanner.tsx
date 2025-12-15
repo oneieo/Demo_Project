@@ -43,7 +43,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
             onClick={() => onToggleWishlist(movie)}
           >
             <i className={`fas ${isWishlisted ? "fa-check" : "fa-plus"}`}></i>
-            {isWishlisted ? "내가 찜한 리스트" : "내가 찜한 리스트"}
+            {isWishlisted ? "내가 찜한 콘텐츠" : "콘텐츠 찜 하기"}
           </button>
         </div>
 
