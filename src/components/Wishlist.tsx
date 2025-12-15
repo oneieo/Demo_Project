@@ -6,6 +6,7 @@ import "../css/Wishlist.css";
 const Wishlist: React.FC = () => {
   const [wishlistMovies, setWishlistMovies] = useState<Movie[]>([]);
   const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [wishlistIds, setWishlistIds] = useState<number[]>([]);
   const [sortBy, setSortBy] = useState<"date" | "rating" | "title">("date");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -44,11 +45,13 @@ const Wishlist: React.FC = () => {
   }, [wishlistMovies, sortBy, searchQuery]);
 
   const loadWishlist = () => {
-    const savedWishlist = localStorage.getItem("movieWishlist");
-    if (savedWishlist) {
+    // movieWishlist에서 전체 Movie 객체 배열 로드
+    const savedMovieWishlist = localStorage.getItem("movieWishlist");
+    if (savedMovieWishlist) {
       try {
-        const parsed = JSON.parse(savedWishlist);
+        const parsed = JSON.parse(savedMovieWishlist);
         setWishlistMovies(parsed);
+        setWishlistIds(parsed.map((movie: Movie) => movie.id));
       } catch (err) {
         console.error("위시리스트 로드 실패:", err);
       }
@@ -56,23 +59,36 @@ const Wishlist: React.FC = () => {
   };
 
   const toggleWishlist = (movie: Movie) => {
-    const savedWishlist = localStorage.getItem("movieWishlist");
-    let currentWishlist: Movie[] = [];
+    // movieWishlist 업데이트
+    const savedMovieWishlist = localStorage.getItem("movieWishlist");
+    let currentMovieWishlist: Movie[] = [];
 
-    if (savedWishlist) {
+    if (savedMovieWishlist) {
       try {
-        currentWishlist = JSON.parse(savedWishlist);
+        currentMovieWishlist = JSON.parse(savedMovieWishlist);
       } catch (err) {
         console.error("위시리스트 파싱 실패:", err);
       }
     }
 
-    const existingIndex = currentWishlist.findIndex((m) => m.id === movie.id);
+    const existingIndex = currentMovieWishlist.findIndex(
+      (m) => m.id === movie.id
+    );
 
     if (existingIndex !== -1) {
-      currentWishlist.splice(existingIndex, 1);
-      localStorage.setItem("movieWishlist", JSON.stringify(currentWishlist));
-      setWishlistMovies(currentWishlist);
+      // 제거
+      currentMovieWishlist.splice(existingIndex, 1);
+      const newIds = wishlistIds.filter((id) => id !== movie.id);
+
+      // localStorage 업데이트 (movieWishlist만)
+      localStorage.setItem(
+        "movieWishlist",
+        JSON.stringify(currentMovieWishlist)
+      );
+
+      // state 업데이트
+      setWishlistMovies(currentMovieWishlist);
+      setWishlistIds(newIds);
     }
   };
 
@@ -80,6 +96,7 @@ const Wishlist: React.FC = () => {
     if (window.confirm("모든 찜 목록을 삭제하시겠습니까?")) {
       localStorage.removeItem("movieWishlist");
       setWishlistMovies([]);
+      setWishlistIds([]);
     }
   };
 
