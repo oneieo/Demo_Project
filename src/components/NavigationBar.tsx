@@ -70,20 +70,14 @@ const Navbar = () => {
               홈
             </Link>
             <Link
-              to="/popular"
-              className={`navbar-link ${isActive("/popular") ? "active" : ""}`}
-            >
-              시리즈
-            </Link>
-            <Link
               to="/search"
               className={`navbar-link ${isActive("/search") ? "active" : ""}`}
             >
-              영화
+              찾아보기
             </Link>
             <Link
-              to="/wishlist"
-              className={`navbar-link ${isActive("/wishlist") ? "active" : ""}`}
+              to="/popular"
+              className={`navbar-link ${isActive("/popular") ? "active" : ""}`}
             >
               NEW! 요즘 대세 콘텐츠
             </Link>
@@ -125,9 +119,8 @@ const Navbar = () => {
           </div>
           <div className="profile-menu">
             <img
-              src="https://i.pravatar.cc/150?img=68"
-              alt="Profile"
-              className="profile-avatar"
+              src="https://api.dicebear.com/7.x/bottts/svg?seed=Felix"
+              width={28}
             />
             <i className="fas fa-caret-down"></i>
           </div>
@@ -150,20 +143,14 @@ const Navbar = () => {
           홈
         </Link>
         <Link
-          to="/popular"
-          className={`navbar-link ${isActive("/popular") ? "active" : ""}`}
-        >
-          시리즈
-        </Link>
-        <Link
           to="/search"
           className={`navbar-link ${isActive("/search") ? "active" : ""}`}
         >
-          영화
+          찾아보기
         </Link>
         <Link
-          to="/wishlist"
-          className={`navbar-link ${isActive("/wishlist") ? "active" : ""}`}
+          to="/popular"
+          className={`navbar-link ${isActive("/popular") ? "active" : ""}`}
         >
           NEW! 요즘 대세 콘텐츠
         </Link>
