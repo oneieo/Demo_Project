@@ -12,11 +12,12 @@ const Popular: React.FC = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // 위시리스트 불러오기 (movieWishlist에서 id만 추출)
   useEffect(() => {
-    const savedWishlist = localStorage.getItem("movieWishlist");
-    if (savedWishlist) {
+    const savedMovieWishlist = localStorage.getItem("movieWishlist");
+    if (savedMovieWishlist) {
       try {
-        const parsed = JSON.parse(savedWishlist);
+        const parsed = JSON.parse(savedMovieWishlist);
         setWishlist(parsed.map((movie: Movie) => movie.id));
       } catch (err) {
         console.error("위시리스트 로드 실패:", err);
@@ -24,31 +25,39 @@ const Popular: React.FC = () => {
     }
   }, []);
 
+  // 위시리스트 토글
   const toggleWishlist = (movie: Movie) => {
-    const savedWishlist = localStorage.getItem("movieWishlist");
-    let currentWishlist: Movie[] = [];
+    // movieWishlist (전체 Movie 객체 배열) 관리
+    const savedMovieWishlist = localStorage.getItem("movieWishlist");
+    let currentMovieWishlist: Movie[] = [];
 
-    if (savedWishlist) {
+    if (savedMovieWishlist) {
       try {
-        currentWishlist = JSON.parse(savedWishlist);
+        currentMovieWishlist = JSON.parse(savedMovieWishlist);
       } catch (err) {
         console.error("위시리스트 파싱 실패:", err);
       }
     }
 
-    const existingIndex = currentWishlist.findIndex((m) => m.id === movie.id);
+    const existingIndex = currentMovieWishlist.findIndex(
+      (m) => m.id === movie.id
+    );
 
     if (existingIndex === -1) {
-      currentWishlist.push(movie);
+      // 추가
+      currentMovieWishlist.push(movie);
       setWishlist([...wishlist, movie.id]);
     } else {
-      currentWishlist.splice(existingIndex, 1);
+      // 제거
+      currentMovieWishlist.splice(existingIndex, 1);
       setWishlist(wishlist.filter((id) => id !== movie.id));
     }
 
-    localStorage.setItem("movieWishlist", JSON.stringify(currentWishlist));
+    // movieWishlist만 저장
+    localStorage.setItem("movieWishlist", JSON.stringify(currentMovieWishlist));
   };
 
+  // 영화 데이터 로드
   const fetchMovies = async (page: number, append: boolean = false) => {
     setLoading(true);
     try {
@@ -60,7 +69,7 @@ const Popular: React.FC = () => {
       } else {
         setMovies(data.results);
       }
-      setTotalPages(Math.min(data.total_pages, 100));
+      setTotalPages(Math.min(data.total_pages, 100)); // 최대 100페이지
     } catch (error) {
       console.error("영화 로드 실패:", error);
     } finally {
@@ -68,10 +77,12 @@ const Popular: React.FC = () => {
     }
   };
 
+  // 초기 로드
   useEffect(() => {
     fetchMovies(1);
   }, []);
 
+  // View 모드 변경 시 초기화
   useEffect(() => {
     setCurrentPage(1);
     setMovies([]);
@@ -81,6 +92,7 @@ const Popular: React.FC = () => {
     }
   }, [viewMode]);
 
+  // 무한 스크롤 감지
   useEffect(() => {
     if (viewMode !== "infinite") return;
 
@@ -91,8 +103,10 @@ const Popular: React.FC = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
+      // 스크롤 탑 버튼 표시
       setShowScrollTop(scrollTop > 500);
 
+      // 90% 스크롤 시 다음 페이지 로드
       if (scrollPercentage > 0.9 && !loading && currentPage < totalPages) {
         const nextPage = currentPage + 1;
         setCurrentPage(nextPage);
@@ -105,21 +119,24 @@ const Popular: React.FC = () => {
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [viewMode, loading, currentPage, totalPages]);
 
+  // 페이지 변경 (테이블 모드)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     fetchMovies(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // 맨 위로 스크롤
   const scrollToTop = () => {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // 페이지네이션 렌더링
   const renderPagination = () => {
     const pageNumbers: number[] = [];
     const maxVisible = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
     if (endPage - startPage < maxVisible - 1) {
       startPage = Math.max(1, endPage - maxVisible + 1);
@@ -273,7 +290,7 @@ const Popular: React.FC = () => {
                       wishlist.includes(movie.id) ? "fas" : "far"
                     } fa-heart`}
                   ></i>
-                  {wishlist.includes(movie.id) ? "찜 해제" : "콘텐츠 찜 하기"}
+                  {wishlist.includes(movie.id) ? "찜 해제" : "내가 찜한 콘텐츠"}
                 </button>
               </div>
             </div>
