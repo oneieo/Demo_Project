@@ -83,13 +83,13 @@
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
 .search-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   position: relative;
 }
 
@@ -104,7 +104,9 @@
   opacity: 0;
   transition: all 0.3s ease;
   position: absolute;
-  right: 40px;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .search-container:has(.search-input) .icon-button {
@@ -112,7 +114,7 @@
 }
 
 .search-input:not([style*="display: none"]) {
-  width: 250px;
+  width: 300px;
   opacity: 1;
 }
 
@@ -184,7 +186,6 @@
   transform: rotate(180deg);
 }
 
-/* 모바일 메뉴 버튼 (기본 숨김) */
 .mobile-menu-button {
   display: none;
   background: none;
@@ -195,7 +196,6 @@
   padding: 8px;
 }
 
-/* 모바일 메뉴 (기본 숨김) */
 .mobile-menu {
   display: none;
   flex-direction: column;
@@ -262,7 +262,7 @@
   }
 
   .search-input:not([style*="display: none"]) {
-    width: 180px;
+    width: 200px;
   }
 
   .icon-button {
@@ -285,7 +285,7 @@
   }
 
   .search-input:not([style*="display: none"]) {
-    width: 135px;
+    width: 150px;
     font-size: 13px;
     padding: 6px 35px 6px 10px;
   }
