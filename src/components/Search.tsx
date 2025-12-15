@@ -58,7 +58,6 @@ const Search: React.FC = () => {
     fetchGenres();
   }, []);
 
-  // 영화 데이터 가져오기
   useEffect(() => {
     const fetchMovies = async () => {
       const apiKey = localStorage.getItem("TMDB-Key");
@@ -72,29 +71,24 @@ const Search: React.FC = () => {
 
         let response;
 
-        // 검색 키워드가 있으면 검색 API 사용
         if (searchKeyword.trim()) {
           response = await movieApi.searchMovies(searchKeyword, currentPage);
         } else {
-          // 필터 파라미터 구성
           const params: any = {
             page: currentPage,
             sort_by: sortBy,
           };
 
-          // 장르 필터
           if (selectedGenre) {
             params.with_genres = selectedGenre;
           }
 
-          // 평점 필터
           if (selectedRating) {
             const [min, max] = selectedRating.split("-").map(Number);
             params["vote_average.gte"] = min;
             params["vote_average.lte"] = max;
           }
 
-          // 언어 필터
           if (selectedLanguage) {
             params.with_original_language = selectedLanguage;
           }
@@ -103,7 +97,7 @@ const Search: React.FC = () => {
         }
 
         setMovies(response.data.results);
-        setTotalPages(Math.min(response.data.total_pages, 500)); // TMDB API 제한
+        setTotalPages(Math.min(response.data.total_pages, 500));
         setError("");
       } catch (err: any) {
         const errorMsg =
@@ -127,7 +121,6 @@ const Search: React.FC = () => {
     searchKeyword,
   ]);
 
-  // 위시리스트 토글
   const handleToggleWishlist = (movie: Movie) => {
     const newWishlist = wishlist.includes(movie.id)
       ? wishlist.filter((id) => id !== movie.id)
@@ -137,7 +130,6 @@ const Search: React.FC = () => {
     localStorage.setItem("wishlist", JSON.stringify(newWishlist));
   };
 
-  // 필터 초기화
   const handleResetFilters = () => {
     setSelectedGenre("");
     setSelectedRating("");
@@ -148,14 +140,12 @@ const Search: React.FC = () => {
     localStorage.removeItem("searchKeyword");
   };
 
-  // 검색 키워드 제거
   const handleClearSearch = () => {
     setSearchKeyword("");
     localStorage.removeItem("searchKeyword");
     setCurrentPage(1);
   };
 
-  // 페이지 변경
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -178,7 +168,6 @@ const Search: React.FC = () => {
 
       {!searchKeyword && (
         <div className="filtering-controls">
-          {/* 장르 필터 */}
           <div className="filter-group">
             <label>장르</label>
             <select
@@ -197,7 +186,6 @@ const Search: React.FC = () => {
             </select>
           </div>
 
-          {/* 평점 필터 */}
           <div className="filter-group">
             <label>평점</label>
             <select
@@ -218,7 +206,6 @@ const Search: React.FC = () => {
             </select>
           </div>
 
-          {/* 언어 필터 */}
           <div className="filter-group">
             <label>언어</label>
             <select
@@ -238,7 +225,6 @@ const Search: React.FC = () => {
             </select>
           </div>
 
-          {/* 정렬 */}
           <div className="filter-group">
             <label>정렬</label>
             <select
@@ -258,7 +244,6 @@ const Search: React.FC = () => {
             </select>
           </div>
 
-          {/* 초기화 버튼 */}
           <button className="reset-button" onClick={handleResetFilters}>
             초기화
           </button>
@@ -306,7 +291,6 @@ const Search: React.FC = () => {
             ))}
           </div>
 
-          {/* 페이지네이션 */}
           {totalPages > 1 && (
             <>
               <div className="pagination">
@@ -325,7 +309,6 @@ const Search: React.FC = () => {
                   ‹
                 </button>
 
-                {/* 페이지 번호 */}
                 {[...Array(Math.min(5, totalPages))].map((_, idx) => {
                   let pageNum;
                   if (totalPages <= 5) {
