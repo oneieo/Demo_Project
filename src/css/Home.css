@@ -52,7 +52,7 @@
   position: relative;
   z-index: 2;
   padding: 0 60px;
-  max-width: 700px;
+  max-width: 710px;
   color: white;
   animation: slideInLeft 1s ease;
 }
@@ -61,6 +61,7 @@
   font-size: 64px;
   font-weight: 700;
   margin-bottom: 20px;
+  text-align: start;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
   line-height: 1.1;
 }
@@ -69,6 +70,7 @@
   font-size: 18px;
   line-height: 1.6;
   margin-bottom: 30px;
+  text-align: start;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
   display: -webkit-box;
   -webkit-line-clamp: 4;
