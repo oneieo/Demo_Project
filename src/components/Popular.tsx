@@ -12,24 +12,17 @@ const Popular: React.FC = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const fetchMovies = async (page: number, append: boolean = false) => {
-    setLoading(true);
-    try {
-      const response = await movieApi.getPopular(page);
-      const data = response.data;
-
-      if (append) {
-        setMovies((prev) => [...prev, ...data.results]);
-      } else {
-        setMovies(data.results);
+  useEffect(() => {
+    const savedWishlist = localStorage.getItem("movieWishlist");
+    if (savedWishlist) {
+      try {
+        const parsed = JSON.parse(savedWishlist);
+        setWishlist(parsed.map((movie: Movie) => movie.id));
+      } catch (err) {
+        console.error("위시리스트 로드 실패:", err);
       }
-      setTotalPages(100);
-    } catch (error) {
-      console.error("영화 로드 실패:", error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
   const toggleWishlist = (movie: Movie) => {
     const savedWishlist = localStorage.getItem("movieWishlist");
@@ -39,7 +32,7 @@ const Popular: React.FC = () => {
       try {
         currentWishlist = JSON.parse(savedWishlist);
       } catch (err) {
-        console.error("Failed to parse wishlist:", err);
+        console.error("위시리스트 파싱 실패:", err);
       }
     }
 
@@ -56,20 +49,27 @@ const Popular: React.FC = () => {
     localStorage.setItem("movieWishlist", JSON.stringify(currentWishlist));
   };
 
-  useEffect(() => {
-    fetchMovies(1);
-  }, []);
+  const fetchMovies = async (page: number, append: boolean = false) => {
+    setLoading(true);
+    try {
+      const response = await movieApi.getPopular(page);
+      const data = response.data;
+
+      if (append) {
+        setMovies((prev) => [...prev, ...data.results]);
+      } else {
+        setMovies(data.results);
+      }
+      setTotalPages(Math.min(data.total_pages, 100));
+    } catch (error) {
+      console.error("영화 로드 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const savedWishlist = localStorage.getItem("movieWishlist");
-    if (savedWishlist) {
-      try {
-        const parsed = JSON.parse(savedWishlist);
-        setWishlist(parsed.map((movie: Movie) => movie.id));
-      } catch (err) {
-        console.error("Failed to parse wishlist:", err);
-      }
-    }
+    fetchMovies(1);
   }, []);
 
   useEffect(() => {
@@ -233,7 +233,7 @@ const Popular: React.FC = () => {
               className={`popular-movie-card ${
                 wishlist.includes(movie.id) ? "wishlisted" : ""
               }`}
-              onClick={() => setWishlist(movie)}
+              onClick={() => toggleWishlist(movie)}
             >
               {movie.poster_path ? (
                 <img
@@ -273,7 +273,7 @@ const Popular: React.FC = () => {
                       wishlist.includes(movie.id) ? "fas" : "far"
                     } fa-heart`}
                   ></i>
-                  {wishlist.includes(movie.id) ? "찜 해제" : "내가 찜한 콘텐츠"}
+                  {wishlist.includes(movie.id) ? "찜 해제" : "콘텐츠 찜 하기"}
                 </button>
               </div>
             </div>
