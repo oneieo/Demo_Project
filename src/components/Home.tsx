@@ -141,13 +141,13 @@ const Home = () => {
           onToggleWishlist={toggleWishlist}
         />
         <MovieSection
-          title="⭐ 평점 높은 영화"
+          title="⭐ 평단의 찬사를 받은 콘텐츠"
           movies={topRatedMovies}
           wishlist={wishlist}
           onToggleWishlist={toggleWishlist}
         />
         <MovieSection
-          title="🎯 개봉 예정"
+          title="🍿 팝플릭스의 업커밍 콘텐츠"
           movies={upcomingMovies}
           wishlist={wishlist}
           onToggleWishlist={toggleWishlist}
