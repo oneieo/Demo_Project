@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../css/SignIn.css";
 
@@ -154,7 +154,6 @@ function SignIn() {
 
   return (
     <div className="signin-container">
-      <ToastContainer />
       <div className={`signin-box ${isFlipping ? "flipping" : ""}`}>
         <h1>{isLogin ? "로그인" : "회원가입"}</h1>
 
