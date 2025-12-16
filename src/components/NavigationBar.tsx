@@ -51,11 +51,9 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    // 로그인 상태 확인
     const checkLoginStatus = () => {
       const currentUser = localStorage.getItem("currentUser");
       if (currentUser) {
-        // '@' 앞의 아이디만 추출
         const username = currentUser.split("@")[0];
         setLoggedInUser(username);
       } else {
@@ -64,7 +62,6 @@ const Navbar = () => {
     };
 
     checkLoginStatus();
-    // location이 변경될 때마다 로그인 상태 재확인
   }, [location]);
 
   useEffect(() => {
