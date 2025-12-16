@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../css/SignIn.css";
 
 interface User {
@@ -32,12 +34,18 @@ function SignIn() {
     setError("");
 
     if (!isValidEmail(email)) {
-      setError("올바른 이메일 형식이 아닙니다.");
+      toast.error("올바른 이메일 형식이 아닙니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     if (!password) {
-      setError("비밀번호를 입력해주세요.");
+      toast.error("비밀번호를 입력해주세요.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -51,11 +59,21 @@ function SignIn() {
         localStorage.setItem("rememberedEmail", email);
       }
 
-      alert("로그인 성공!");
       localStorage.setItem("currentUser", email);
-      navigate("/");
+
+      toast.success("로그인 성공!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } else {
-      setError("아이디 또는 비밀번호가 일치하지 않습니다.");
+      toast.error("아이디 또는 비밀번호가 일치하지 않습니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -63,22 +81,34 @@ function SignIn() {
     setError("");
 
     if (!isValidEmail(email)) {
-      setError("올바른 이메일 형식이 아닙니다.");
+      toast.error("올바른 이메일 형식이 아닙니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     if (!password) {
-      setError("비밀번호(TMDB API Key)를 입력해주세요.");
+      toast.error("비밀번호(TMDB API Key)를 입력해주세요.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다.");
+      toast.error("비밀번호가 일치하지 않습니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     if (!agreeTerms) {
-      setError("약관에 동의해주세요.");
+      toast.warning("약관에 동의해주세요.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -86,7 +116,10 @@ function SignIn() {
     const userExists = users.some((u) => u.id === email);
 
     if (userExists) {
-      setError("이미 존재하는 이메일입니다.");
+      toast.error("이미 존재하는 이메일입니다.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -94,11 +127,17 @@ function SignIn() {
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
 
-    alert("회원가입 성공! 로그인해주세요.");
-    setIsLogin(true);
-    setPassword("");
-    setConfirmPassword("");
-    setAgreeTerms(false);
+    toast.success("회원가입 성공! 로그인해주세요.", {
+      position: "top-center",
+      autoClose: 2000,
+    });
+
+    setTimeout(() => {
+      setIsLogin(true);
+      setPassword("");
+      setConfirmPassword("");
+      setAgreeTerms(false);
+    }, 1000);
   };
 
   const toggleForm = () => {
@@ -115,6 +154,7 @@ function SignIn() {
 
   return (
     <div className="signin-container">
+      <ToastContainer />
       <div className={`signin-box ${isFlipping ? "flipping" : ""}`}>
         <h1>{isLogin ? "로그인" : "회원가입"}</h1>
 
