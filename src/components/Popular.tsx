@@ -5,14 +5,16 @@ import "../css/Popular.css";
 const Popular: React.FC = () => {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<"table" | "infinite">("table");
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [allMovies, setAllMovies] = useState<Movie[]>([]); // 전체 영화 목록
+  const [displayedMovies, setDisplayedMovies] = useState<Movie[]>([]); // 화면에 표시될 영화
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // 위시리스트 불러오기 (movieWishlist에서 id만 추출)
+  const ITEMS_PER_PAGE = 6; // 테이블 뷰에서 페이지당 표시할 영화 수
+
   useEffect(() => {
     const savedMovieWishlist = localStorage.getItem("movieWishlist");
     if (savedMovieWishlist) {
@@ -25,9 +27,7 @@ const Popular: React.FC = () => {
     }
   }, []);
 
-  // 위시리스트 토글
   const toggleWishlist = (movie: Movie) => {
-    // movieWishlist (전체 Movie 객체 배열) 관리
     const savedMovieWishlist = localStorage.getItem("movieWishlist");
     let currentMovieWishlist: Movie[] = [];
 
@@ -44,32 +44,37 @@ const Popular: React.FC = () => {
     );
 
     if (existingIndex === -1) {
-      // 추가
       currentMovieWishlist.push(movie);
       setWishlist([...wishlist, movie.id]);
     } else {
-      // 제거
       currentMovieWishlist.splice(existingIndex, 1);
       setWishlist(wishlist.filter((id) => id !== movie.id));
     }
 
-    // movieWishlist만 저장
     localStorage.setItem("movieWishlist", JSON.stringify(currentMovieWishlist));
   };
 
-  // 영화 데이터 로드
-  const fetchMovies = async (page: number, append: boolean = false) => {
+  // 초기 영화 데이터 로드 (한 번에 많이 가져오기)
+  const fetchAllMovies = async () => {
     setLoading(true);
     try {
-      const response = await movieApi.getPopular(page);
-      const data = response.data;
+      // 처음 5페이지의 영화를 한 번에 가져오기 (100개)
+      const promises = [1, 2, 3, 4, 5].map((page) => movieApi.getPopular(page));
+      const responses = await Promise.all(promises);
 
-      if (append) {
-        setMovies((prev) => [...prev, ...data.results]);
-      } else {
-        setMovies(data.results);
-      }
-      setTotalPages(Math.min(data.total_pages, 100)); // 최대 100페이지
+      const allMoviesData = responses.flatMap(
+        (response) => response.data.results
+      );
+      setAllMovies(allMoviesData);
+
+      // 총 페이지 수 계산 (6개씩)
+      const calculatedTotalPages = Math.ceil(
+        allMoviesData.length / ITEMS_PER_PAGE
+      );
+      setTotalPages(calculatedTotalPages);
+
+      // 첫 페이지 표시
+      setDisplayedMovies(allMoviesData.slice(0, ITEMS_PER_PAGE));
     } catch (error) {
       console.error("영화 로드 실패:", error);
     } finally {
@@ -77,22 +82,54 @@ const Popular: React.FC = () => {
     }
   };
 
+  // 무한 스크롤용 영화 로드
+  const fetchMoviesForInfinite = async (
+    page: number,
+    append: boolean = false
+  ) => {
+    if (append) {
+      setLoading(true); // append일 때만 로딩 표시
+    }
+    try {
+      const response = await movieApi.getPopular(page);
+      const data = response.data;
+
+      if (append) {
+        setDisplayedMovies((prev) => [...prev, ...data.results]);
+      } else {
+        setDisplayedMovies(data.results);
+      }
+    } catch (error) {
+      console.error("영화 로드 실패:", error);
+    } finally {
+      if (append) {
+        setLoading(false);
+      }
+    }
+  };
+
   // 초기 로드
   useEffect(() => {
-    fetchMovies(1);
+    fetchAllMovies();
   }, []);
 
-  // View 모드 변경 시 초기화
+  // 뷰 모드 변경 시
   useEffect(() => {
     setCurrentPage(1);
-    setMovies([]);
-    fetchMovies(1);
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
+
+    if (viewMode === "table") {
+      // 테이블 뷰: 첫 6개만 표시
+      setDisplayedMovies(allMovies.slice(0, ITEMS_PER_PAGE));
+    } else {
+      // 무한 스크롤: 첫 페이지 로드
+      fetchMoviesForInfinite(1);
+    }
   }, [viewMode]);
 
-  // 무한 스크롤 감지
+  // 무한 스크롤 처리
   useEffect(() => {
     if (viewMode !== "infinite") return;
 
@@ -103,40 +140,38 @@ const Popular: React.FC = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-      // 스크롤 탑 버튼 표시
       setShowScrollTop(scrollTop > 500);
 
-      // 90% 스크롤 시 다음 페이지 로드
-      if (scrollPercentage > 0.9 && !loading && currentPage < totalPages) {
+      if (scrollPercentage > 0.9 && !loading) {
         const nextPage = currentPage + 1;
         setCurrentPage(nextPage);
-        fetchMovies(nextPage, true);
+        fetchMoviesForInfinite(nextPage, true);
       }
     };
 
     const container = scrollContainerRef.current;
     container?.addEventListener("scroll", handleScroll);
     return () => container?.removeEventListener("scroll", handleScroll);
-  }, [viewMode, loading, currentPage, totalPages]);
+  }, [viewMode, loading, currentPage]);
 
-  // 페이지 변경 (테이블 모드)
+  // 테이블 뷰 페이지 변경
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchMovies(page);
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setDisplayedMovies(allMovies.slice(startIndex, endIndex));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // 맨 위로 스크롤
   const scrollToTop = () => {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // 페이지네이션 렌더링
   const renderPagination = () => {
     const pageNumbers: number[] = [];
     const maxVisible = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
     if (endPage - startPage < maxVisible - 1) {
       startPage = Math.max(1, endPage - maxVisible + 1);
@@ -244,7 +279,7 @@ const Popular: React.FC = () => {
         }`}
       >
         <div className="movie-grid-popular">
-          {movies.map((movie) => (
+          {displayedMovies.map((movie) => (
             <div
               key={movie.id}
               className={`popular-movie-card ${
@@ -297,10 +332,10 @@ const Popular: React.FC = () => {
           ))}
         </div>
 
-        {loading && (
+        {loading && viewMode === "infinite" && (
           <div className="loading-spinner">
             <div className="spinner"></div>
-            <p>로딩 중...</p>
+            <p>더 많은 영화를 불러오는 중...</p>
           </div>
         )}
 
