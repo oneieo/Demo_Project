@@ -87,7 +87,9 @@ const Popular: React.FC = () => {
     page: number,
     append: boolean = false
   ) => {
-    setLoading(true);
+    if (append) {
+      setLoading(true); // append일 때만 로딩 표시
+    }
     try {
       const response = await movieApi.getPopular(page);
       const data = response.data;
@@ -100,7 +102,9 @@ const Popular: React.FC = () => {
     } catch (error) {
       console.error("영화 로드 실패:", error);
     } finally {
-      setLoading(false);
+      if (append) {
+        setLoading(false);
+      }
     }
   };
 
@@ -328,10 +332,10 @@ const Popular: React.FC = () => {
           ))}
         </div>
 
-        {loading && (
+        {loading && viewMode === "infinite" && (
           <div className="loading-spinner">
             <div className="spinner"></div>
-            <p>로딩 중...</p>
+            <p>더 많은 영화를 불러오는 중...</p>
           </div>
         )}
 
