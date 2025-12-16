@@ -117,7 +117,7 @@ const Navbar = () => {
               </form>
             )}
           </div>
-          <div className="profile-menu">
+          <div className="profile-menu" onClick={() => navigate("/signin")}>
             <img
               src="https://api.dicebear.com/7.x/bottts/svg?seed=Felix"
               width={28}
