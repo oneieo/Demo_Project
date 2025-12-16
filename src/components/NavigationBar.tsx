@@ -7,6 +7,8 @@ const Navbar = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [loggedInUser, setLoggedInUser] = useState<string>("");
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,9 +51,33 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
+    // 로그인 상태 확인
+    const checkLoginStatus = () => {
+      const currentUser = localStorage.getItem("currentUser");
+      if (currentUser) {
+        // '@' 앞의 아이디만 추출
+        const username = currentUser.split("@")[0];
+        setLoggedInUser(username);
+      } else {
+        setLoggedInUser("");
+      }
+    };
+
+    checkLoginStatus();
+    // location이 변경될 때마다 로그인 상태 재확인
+  }, [location]);
+
+  useEffect(() => {
     setMobileMenuOpen(false);
     setShowSearch(false);
   }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    setLoggedInUser("");
+    setShowProfileMenu(false);
+    navigate("/signin");
+  };
 
   return (
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
@@ -117,12 +143,35 @@ const Navbar = () => {
               </form>
             )}
           </div>
-          <div className="profile-menu">
+          <div
+            className="profile-menu"
+            onClick={() =>
+              loggedInUser
+                ? setShowProfileMenu(!showProfileMenu)
+                : navigate("/signin")
+            }
+          >
             <img
               src="https://api.dicebear.com/7.x/bottts/svg?seed=Felix"
               width={28}
+              alt="profile"
             />
+            {loggedInUser && <span className="username">{loggedInUser}</span>}
             <i className="fas fa-caret-down"></i>
+
+            {showProfileMenu && loggedInUser && (
+              <div className="profile-dropdown">
+                <button
+                  className="logout-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
           </div>
 
           <button
