@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "../css/Navbar.css";
 
 const Navbar = () => {
@@ -73,7 +74,15 @@ const Navbar = () => {
     localStorage.removeItem("currentUser");
     setLoggedInUser("");
     setShowProfileMenu(false);
-    navigate("/signin");
+
+    toast.info("로그아웃 되었습니다.", {
+      position: "top-center",
+      autoClose: 2000,
+    });
+
+    setTimeout(() => {
+      navigate("/signin");
+    }, 500);
   };
 
   return (
