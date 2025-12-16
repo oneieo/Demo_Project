@@ -285,7 +285,7 @@
   }
 
   .search-input:not([style*="display: none"]) {
-    width: 150px;
+    width: 140px;
     font-size: 13px;
     padding: 6px 35px 6px 10px;
   }
@@ -297,4 +297,42 @@
   .navbar-right {
     gap: 3px;
   }
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.username {
+  margin: 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 8px 0;
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 5px 10px;
+  background: transparent;
+  color: white;
+  border: none;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
